@@ -70,18 +70,22 @@ function initApp() {
   getMovies();
   document
     .querySelector("#search-input")
-    .addEventListener("input", filterMovies);
+    .addEventListener("input", filteredMovies);
   document
     .querySelector("#genre-select")
-    .addEventListener("change", filterMovies);
+    .addEventListener("change", filteredMovies);
+  document
+    .querySelector("#sort-select")
+    .addEventListener("change", filteredMovies);
 }
 
 // #5: Kombineret søgning og genre filtrering
-function filterMovies() {
+function filteredMovies() {
   const searchValue = document
     .querySelector("#search-input")
     .value.toLowerCase();
   const genreValue = document.querySelector("#genre-select").value;
+  const sortValue = document.querySelector("#sort-select").value;
 
   // Start med alle movies
   let filteredMovies = allMovies;
@@ -143,4 +147,59 @@ async function getMovies() {
   allMovies = await response.json();
   populateGenreDropdown(); // Udfyld dropdown med genres
   displayMovies(allMovies);
+}
+// ========== OPDATER displayMovie MED CLICK EVENTS ==========
+function displayMovie(movie) {
+  const movieList = document.querySelector("#movie-list");
+
+  const movieHTML = `
+    <article class="movie-card" tabindex="0">
+      <img src="${movie.image}" 
+           alt="Poster of ${movie.title}" 
+           class="movie-poster" />
+      <div class="movie-info">
+        <h3>${movie.title} <span class="movie-year">(${movie.year})</span></h3>
+        <p class="movie-genre">${movie.genre.join(", ")}</p>
+        <p class="movie-rating">⭐ ${movie.rating}</p>
+        <p class="movie-director"><strong>Director:</strong> ${
+          movie.director
+        }</p>
+      </div>
+    </article>
+  `;
+
+  movieList.insertAdjacentHTML("beforeend", movieHTML);
+
+  // Tilføj click event til den nye card
+  const newCard = movieList.lastElementChild;
+
+  newCard.addEventListener("click", function () {
+    console.log(`🎬 Klik på: "${movie.title}"`);
+    showMovieDetails(movie);
+  });
+  // Tilføj også keyboard event til displayMovie:
+  newCard.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      showMovieDetails(movie);
+    }
+  });
+}
+
+// #7: Vis movie detaljer (midlertidig løsning med alert)
+function showMovieDetails(movie) {
+  console.log("📊 Viser detaljer for:", movie.title);
+
+  // Vis i alert (midlertidig løsning)
+  const movieInfo = `🎬 ${movie.title} (${movie.year})
+🎭 ${movie.genre.join(", ")}
+⭐ Rating: ${movie.rating}
+🎯 Instruktør: ${movie.director}
+👥 Skuespillere: ${movie.actors.join(", ")}
+
+📝 ${movie.description}`;
+
+  alert(movieInfo);
+
+  // TODO: Næste gang laver vi modal dialog!
 }
